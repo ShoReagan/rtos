@@ -1,8 +1,42 @@
-#include <stdint.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include "tm4c123gh6pm.h"
 #include "commands.h"
+
+int val(char c)
+{
+    if (c >= '0' && c <= '9')
+        return (int)c - '0';
+    else
+        return (int)c - 'A' + 10;
+}
+
+// Function to convert a number from given base 'b'
+// to decimal
+int toDeci(char *str, int base)
+{
+    int len = strlen(str);
+    int power = 1; // Initialize power of base
+    int num = 0;  // Initialize result
+    int i;
+
+    // Decimal equivalent is str[len-1]*1 +
+    // str[len-2]*base + str[len-3]*(base^2) + ...
+    for (i = len - 1; i >= 0; i--)
+    {
+        // A digit in input number must be
+        // less than number's base
+        if (val(str[i]) >= base)
+        {
+           printf("Invalid Number");
+           return -1;
+        }
+
+        num += val(str[i]) * power;
+        power = power * base;
+    }
+
+    return num;
+}
 
 void reverse(char str[], int length)
 {
@@ -120,21 +154,22 @@ void parseFields(USER_DATA *data)
     {
         if(delim == 'd') {
             temp = delim;
-            if((data->buffer[index] >= 65 && data->buffer[index] <= 90) || (data->buffer[index] >= 97 && data->buffer[index] <= 122))
+            if((data->buffer[index] >= 65 && data->buffer[index] <= 90) || (data->buffer[index] >= 97 && data->buffer[index] <= 122)
+                    || (data->buffer[index] >= 48 && data->buffer[index] <= 57))
             {
                 delim = 'a';
             }
-            else if(data->buffer[index] >= 48 && data->buffer[index] <= 57)
-            {
-                delim = 'n';
-            }
+//            else if(data->buffer[index] >= 48 && data->buffer[index] <= 57)
+//            {
+//                delim = 'n';
+//            }
             else
                 data->buffer[index] = '\0';
             index++;
         }
         else
             delim = 'd';
-        if(temp != delim && delim != 'd' && (data->buffer[index-2] == '\0' || index == 0))
+        if(temp != delim && delim != 'd' && (index == 1 || data->buffer[index-2] == '\0'))
         {
             data->fieldPosition[data->fieldCount] = index - 1;
             data->fieldType[data->fieldCount] = delim;

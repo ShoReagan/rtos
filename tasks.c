@@ -75,6 +75,18 @@ void initHw(void)
     selectPinPushPullOutput(YELLOW_LED);
     selectPinPushPullOutput(ORANGE_LED);
 
+//    // Configure Wide Timer 1 as counter of external events on CCP0 pin
+    SYSCTL_RCGCWTIMER_R |= SYSCTL_RCGCWTIMER_R1;
+    _delay_cycles(3);
+
+    WTIMER1_CTL_R &= ~TIMER_CTL_TAEN;                // turn-off counter before reconfiguring
+    WTIMER1_CFG_R = 4;                               // configure as 32-bit counter (A only)
+    WTIMER1_TAMR_R = 1 | TIMER_TAMR_TACDIR; // configure for edge count mode, count up
+    WTIMER1_CTL_R = 0;                               //
+    WTIMER1_IMR_R = 0;                               // turn-off interrupts
+    WTIMER1_TAV_R = 0;                               // zero counter for first period
+    WTIMER1_CTL_R |= TIMER_CTL_TAEN;                 // turn-on counter
+
     // Board LED set up
     selectPinPushPullOutput(BLUE_LED);
 
@@ -95,7 +107,6 @@ void initHw(void)
     NVIC_ST_CURRENT_R = 0xFFFF;
     //set ctrl register
     NVIC_ST_CTRL_R = 7;
-
 }
 
 // REQUIRED: add code to return a value from 0-63 indicating which of 6 PBs are pressed
@@ -104,36 +115,26 @@ uint8_t readPbs(void)
     uint8_t temp = 0;
     if(!getPinValue(BUTTON1))
     {
-        putsUart0("BUTTON 1 PRESSED\n");
-        togglePinValue(RED_LED);
         temp += 1;
     }
     if(!getPinValue(BUTTON2))
     {
-        putsUart0("BUTTON 2 PRESSED\n");
-        togglePinValue(GREEN_LED);
         temp += 2;
     }
     if(!getPinValue(BUTTON3))
     {
-        putsUart0("BUTTON 3 PRESSED\n");
-        togglePinValue(YELLOW_LED);
         temp += 4;
     }
     if(!getPinValue(BUTTON4))
     {
-        putsUart0("BUTTON 4 PRESSED\n");
-        togglePinValue(ORANGE_LED);
         temp += 8;
     }
     if(!getPinValue(BUTTON5))
     {
-        putsUart0("BUTTON 5 PRESSED\n");
         temp += 16;
     }
     if(!getPinValue(BUTTON6))
     {
-        putsUart0("BUTTON 6 PRESSED\n");
         temp += 32;
     }
     return temp;
@@ -148,7 +149,6 @@ void idle(void)
         setPinValue(ORANGE_LED, 1);
         waitMicrosecond(1000);
         setPinValue(ORANGE_LED, 0);
-        //sleep(0x30000);
         yield();
     }
 }
@@ -278,12 +278,12 @@ void uncooperative(void)
 
 void errant(void)
 {
-    uint32_t* p = (uint32_t*)0x20000000;
+    uint32_t* p = (uint32_t*)0x20007000;
     while(true)
     {
         while (readPbs() == 32)
         {
-            *p = 0;
+            *p = 1;
         }
         yield();
     }

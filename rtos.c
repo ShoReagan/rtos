@@ -66,18 +66,17 @@ int main(void)
 
     // Add required idle process at lowest priority
     ok =  createThread(idle, "Idle", 7, 512);
-    ok =  createThread(idle2, "Idle2", 7, 512);
 
     // Add other processes
-//    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
-//    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
-//    ok &= createThread(oneshot, "OneShot", 2, 1024);
-//    ok &= createThread(readKeys, "ReadKeys", 6, 1024);
-//    ok &= createThread(debounce, "Debounce", 6, 1024);
-//    ok &= createThread(important, "Important", 0, 1024);
-//    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
-//    ok &= createThread(errant, "Errant", 6, 1024);
-//    ok &= createThread(shell, "Shell", 6, 4096);
+    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
+    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
+    ok &= createThread(oneshot, "OneShot", 2, 1024);
+    ok &= createThread(readKeys, "ReadKeys", 6, 1024);
+    ok &= createThread(debounce, "Debounce", 6, 1024);
+    ok &= createThread(important, "Important", 0, 1024);
+    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
+    ok &= createThread(errant, "Errant", 6, 1024);
+    ok &= createThread(shell, "Shell", 6, 4096);
 
     // Start up RTOS
     if (ok)

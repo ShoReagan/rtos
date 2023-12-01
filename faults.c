@@ -17,6 +17,7 @@
 #include "faults.h"
 #include "uart0.h"
 #include "commands.h"
+#include "kernel.h"
 
 //-----------------------------------------------------------------------------
 // Subroutines
@@ -30,6 +31,9 @@ void mpuFaultIsr(void)
 {
     uint32_t *x;
     char str[10];
+    NVIC_SYS_HND_CTRL_R &= ~NVIC_SYS_HND_CTRL_MEMA;
+    NVIC_FAULT_STAT_R |= (NVIC_FAULT_STAT_IERR | NVIC_FAULT_STAT_DERR);
+
     putsUart0("MPU ISR\n");
 
     *x = getpsp();
@@ -109,8 +113,7 @@ void mpuFaultIsr(void)
     itoa(*x, str, 16);
     putsUart0(str);
     putsUart0("\n");
-
-    NVIC_SYS_HND_CTRL_R &= ~(NVIC_SYS_HND_CTRL_MEMP);
+    stopThread(0);
     NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;
 }
 
@@ -138,7 +141,8 @@ void hardFaultIsr(void)
     itoa(*x, str, 16);
     putsUart0(str);
     putsUart0("\n");
-    while(1);
+
+//    while(1);
 }
 
 // REQUIRED: code this function

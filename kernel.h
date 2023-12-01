@@ -52,6 +52,14 @@ semaphore semaphores[MAX_SEMAPHORES];
 #define keyReleased 1
 #define flashReq 2
 
+// task
+#define STATE_INVALID           0 // no task
+#define STATE_UNRUN             1 // task has never been run
+#define STATE_READY             2 // has run, can resume at any time
+#define STATE_DELAYED           3 // has run, but now awaiting timer
+#define STATE_BLOCKED_MUTEX     4 // has run, but now blocked by mutex
+#define STATE_BLOCKED_SEMAPHORE 5 // has run, but now blocked by semaphore
+
 //-----------------------------------------------------------------------------
 // Subroutines
 //-----------------------------------------------------------------------------
@@ -75,6 +83,17 @@ void lock(int8_t mutex);
 void unlock(int8_t mutex);
 void wait(int8_t semaphore);
 void post(int8_t semaphore);
+void sched(int8_t prio);
+int pidof(char *str);
+void preempt(uint8_t on);
+void kill(uint32_t pid);
+void reboot();
+void run(uint32_t pid);
+void ipcsMutexes(void *ptr);
+void ipcsSemaphores(void *ptr);
+void ps(void *ptr);
+
+void stopThread(_fn fn);
 
 void systickIsr(void);
 void pendSvIsr(void);

@@ -77,9 +77,9 @@ pushreg:
 	STR R1, [R0]
 	MSR PSP, R0
 	;set msp to where it should be
-	MRS R1, MSP
-	ADD R1, R1, #8
-	MSR MSP, R1
+	;MRS R1, MSP
+	;ADD R1, R1, #8
+	;MSR MSP, R1
 	BX LR
 
 popreg:

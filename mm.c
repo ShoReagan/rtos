@@ -86,6 +86,9 @@ void allowOverallAccess()
     //set base address
     NVIC_MPU_BASE_R |= 0x00000000;
 
+    //set SBC bits
+    NVIC_MPU_ATTR_R |= (0x6 << 16);
+
     //set size to max
     NVIC_MPU_ATTR_R |= (0x1F << 1);
 
@@ -117,19 +120,19 @@ void allowFlashAccess()
     NVIC_MPU_ATTR_R |= 1;
 }
 
-void allowPeripheralAccess()
+void protectOsAccess()
 {
     //set region and valid bit
     NVIC_MPU_NUMBER_R = 0x2;
 
     //set base address
-    NVIC_MPU_BASE_R |= 0x40000000;
+    NVIC_MPU_BASE_R |= 0x20000000;
 
     //set SBC bits
-    NVIC_MPU_ATTR_R |= (0x5 << 16);
+    NVIC_MPU_ATTR_R |= (0x6 << 16);
 
-    //set size to 0x3FFFF
-    NVIC_MPU_ATTR_R |= (0x19 << 1);
+    //set size to 4kB
+    NVIC_MPU_ATTR_R |= (0xB << 1);
 
     //set RW privileges
     NVIC_MPU_ATTR_R |= (0x3 << 24) | (1u << 28);
@@ -209,7 +212,7 @@ void getSrdMask(uint8_t srdMask[4], void *p, uint32_t size_in_bytes)
     {
         if((uint32_t)p > tempPtr && (uint32_t)p <= (tempPtr + 0x2000))
         {
-            startIndex = ((uint32_t)p - (tempPtr + 0x2000)) / 0x400;
+            startIndex = ((uint32_t)p - (tempPtr + 0x400)) / 0x400;
 
             if(size_in_bytes % 0x400)
                 maskedBits = (size_in_bytes / 0x400) + 1;
@@ -245,7 +248,7 @@ void initMpu(void)
     // REQUIRED: call your MPU functions here
     allowOverallAccess();
     allowFlashAccess();
-    allowPeripheralAccess();
+    protectOsAccess();
     setupSramAccess();
 
     NVIC_MPU_CTRL_R |= NVIC_MPU_CTRL_ENABLE;
